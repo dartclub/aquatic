@@ -4,6 +4,14 @@ import 'dart:io';
 import 'package:intl/locale.dart';
 import 'package:aquatic/src/utils/utils.dart';
 
+enum AquaticErrorLevel {
+  /// stops the execution of the whole pipeline
+  strict,
+
+  /// ignores the exception-effected file and continues
+  ignore,
+}
+
 abstract class _AquaticContext {
   final String key;
   String path;
@@ -31,18 +39,18 @@ abstract class _AquaticContext {
   Map toMap();
 }
 
-class AquaticSource extends _AquaticContext {
+abstract class AquaticSource extends _AquaticContext {
   AquaticSource(
-    String path,
-    String slug,
-    Map? context, {
+    String path, {
+    String? slug,
+    Map? context,
     ContentType? contentType,
     Locale? contentLocale,
     DateTime? buildTime,
   }) : super(
           path,
           path,
-          AquaticUtils.slugify(slug),
+          AquaticUtils.slugify(slug ?? path),
           context,
           contentType,
           contentLocale,
@@ -57,9 +65,15 @@ class AquaticSource extends _AquaticContext {
         },
         "site": context,
       };
+  AquaticPipeline get pipeline;
+  AquaticPipeline step(AquaticConverter converter) => pipeline.step(converter);
 }
 
-enum AquaticOperation { create, update, delete }
+enum AquaticOperation {
+  create,
+  update,
+  delete,
+}
 
 class AquaticEntity extends _AquaticContext {
   dynamic content;
@@ -72,13 +86,13 @@ class AquaticEntity extends _AquaticContext {
     AquaticSource? source,
     this.operation = AquaticOperation.create,
     String? slug,
-    Map<String, dynamic>? context,
+    Map? context,
     ContentType? contentType,
     Locale? contentLocale,
   }) : super(
           path,
           path,
-          slug ?? AquaticUtils.slugify(path),
+          AquaticUtils.slugify(slug ?? path),
           context,
           contentType ?? source?.contentType,
           contentLocale ?? source?.contentLocale,
@@ -107,15 +121,18 @@ class AquaticEntity extends _AquaticContext {
       };
 }
 
-abstract class AquaticPipeline {
-  final AquaticSource source;
-  late Stream<AquaticEntity> stream;
+class AquaticPipeline {
+  final AquaticSource? source;
+  Stream<AquaticEntity> stream;
 
-  AquaticPipeline(this.source);
+  AquaticPipeline(
+    this.stream, {
+    this.source,
+  });
 
-  Future<AquaticPipeline> step(AquaticConverter generator) async {
+  AquaticPipeline step(AquaticConverter converter) {
     stream =
-        stream.asyncMap((AquaticEntity entity) => generator.convert(entity));
+        stream.asyncMap((AquaticEntity entity) => converter.convert(entity));
     return this;
   }
 }
