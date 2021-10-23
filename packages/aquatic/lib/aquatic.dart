@@ -4,5 +4,7 @@
 library aquatic;
 
 export 'src/aquatic_base.dart';
+export 'package:intl/locale.dart';
+
 
 // TODO: Export any libraries intended for clients of this package.

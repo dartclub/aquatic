@@ -4,19 +4,21 @@ import 'package:aquatic/aquatic.dart';
 import 'package:aquatic/src/utils/utils.dart';
 
 /// single file source
-class AquaticFileSource extends AquaticSource {
+class AquaticDirectorySource extends AquaticSource {
   final bool watch;
-  final File file;
+  final bool recursive;
+  final Directory directory;
   final int events;
 
-  AquaticFileSource(
+  AquaticDirectorySource(
     String path, {
+    this.recursive = true,
     this.watch = false,
     this.events = FileSystemEvent.all,
     String? slug,
     Map? context,
     Locale? currentLocale,
-  })  : file = File(path),
+  })  : directory = Directory(path),
         super(
           path,
           slug: slug,
@@ -26,9 +28,12 @@ class AquaticFileSource extends AquaticSource {
   Stream<AquaticEntity> _getStream() {
     try {
       if (watch) {
-        return file.watch(events: events).asyncMap(
+        return directory
+            .watch(events: events, recursive: recursive)
+            .where((e) => !e.isDirectory)
+            .asyncMap(
               (event) async => AquaticEntity(
-                await file.readAsString(),
+                await File(path).readAsString(),
                 path: event.path,
                 contentLocale: contentLocale,
                 operation: AquaticUtils.convertFileEventToOp(event.type),
@@ -36,14 +41,16 @@ class AquaticFileSource extends AquaticSource {
               ),
             );
       } else {
-        return Stream.fromIterable([
-          AquaticEntity(
-            file.readAsStringSync(),
-            path: path,
-            contentLocale: contentLocale,
-            source: this,
-          ),
-        ]);
+        return Stream.fromIterable(
+          directory.listSync(recursive: recursive).whereType<File>().map(
+                (File file) => AquaticEntity(
+                  file.readAsStringSync(),
+                  path: file.path,
+                  contentLocale: contentLocale,
+                  source: this,
+                ),
+              ),
+        );
       }
     } catch (e) {
       rethrow;

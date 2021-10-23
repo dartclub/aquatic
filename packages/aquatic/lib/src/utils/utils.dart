@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:aquatic/aquatic.dart';
 import 'package:aquatic/src/utils/replacements.dart';
 import 'package:path/path.dart' as path_lib;
 
@@ -145,4 +148,19 @@ class AquaticUtils {
 
   static String titelizeSlug(String slug) =>
       slug.split('-').map((s) => _capitalize(s)).join(' ');
+
+  static AquaticOperation convertFileEventToOp(int event) {
+    switch (event) {
+      case FileSystemEvent.modify:
+        return AquaticOperation.update;
+      case FileSystemEvent.move:
+        return AquaticOperation.update;
+      case FileSystemEvent.delete:
+        return AquaticOperation.delete;
+      case FileSystemEvent.create:
+      case FileSystemEvent.all:
+      default:
+        return AquaticOperation.create;
+    }
+  }
 }
