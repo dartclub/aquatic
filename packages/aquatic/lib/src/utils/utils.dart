@@ -164,3 +164,39 @@ class AquaticUtils {
     }
   }
 }
+
+enum ReplacementType {
+  all,
+  first,
+  last,
+}
+
+extension StringReplaceExtension on String {
+  String replace(
+      Pattern from, String replacement, ReplacementType replacementType) {
+    String output = this;
+    switch (replacementType) {
+      case ReplacementType.all:
+        output = output.replaceAll(from, replacement);
+        break;
+      case ReplacementType.first:
+        output = output.replaceFirst(from, replacement);
+        break;
+      case ReplacementType.last:
+      default:
+        int length = output.lastIndexOf(from) + from.toString().length;
+        if (length == output.length) {
+          output = output.replaceRange(
+            output.lastIndexOf(from),
+            output.length,
+            replacement,
+          );
+        } else {
+          print('skipping file $output');
+          return output;
+        }
+        break;
+    }
+    return output;
+  }
+}

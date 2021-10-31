@@ -177,7 +177,7 @@ class AquaticSimpleConverter extends AquaticConverter {
   final bool checkContentType;
 
   static final SkipFunction _skipFunctionDefault =
-      (AquaticEntity entity) => Future.sync(() => entity);
+      (AquaticEntity entity) async => entity;
 
   AquaticSimpleConverter(
     this.convertFunction, {

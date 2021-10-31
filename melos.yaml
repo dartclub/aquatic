@@ -1,0 +1,10 @@
+name: aquatic
+repository: https://github.com/scalabs/aquatic
+
+packages:
+- packages/**
+
+scripts:
+  analyze: melos exec -- pub global run tuneup check
+  version:
+    linkToCommits: true

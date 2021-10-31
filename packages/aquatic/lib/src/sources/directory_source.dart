@@ -25,7 +25,7 @@ class AquaticDirectorySource extends AquaticSource {
           context: context,
         );
 
-  Stream<AquaticEntity> _getStream() {
+  Stream<AquaticEntity> _initStream() {
     try {
       if (watch) {
         return directory
@@ -58,5 +58,5 @@ class AquaticDirectorySource extends AquaticSource {
   }
 
   @override
-  AquaticPipeline get pipeline => AquaticPipeline(_getStream(), source: this);
+  AquaticPipeline get pipeline => AquaticPipeline(_initStream(), source: this);
 }

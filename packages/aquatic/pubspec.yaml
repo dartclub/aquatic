@@ -10,6 +10,7 @@ environment:
 dependencies: 
   intl: ^0.17.0
   path: ^1.8.0
+  week_of_year: ^2.0.0
 
 #   path: ^1.8.0
 
