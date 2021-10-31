@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:intl/locale.dart';
 import 'package:aquatic/src/utils/utils.dart';
 
+// TODO implement error handling
 enum AquaticErrorLevel {
   /// stops the execution of the whole pipeline
   strict,
