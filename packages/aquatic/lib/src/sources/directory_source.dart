@@ -11,8 +11,8 @@ class AquaticDirectorySource extends AquaticSource {
   final int events;
 
   AquaticDirectorySource(
-    String path,{
-    AquaticErrorLevel errorLevel = AquaticErrorLevel.ignoreAndSkip, 
+    String path, {
+    AquaticErrorLevel errorLevel = AquaticErrorLevel.ignoreAndSkip,
     this.recursive = true,
     this.watch = false,
     this.events = FileSystemEvent.all,
@@ -55,8 +55,7 @@ class AquaticDirectorySource extends AquaticSource {
         );
       }
     } catch (e) {
-      // TODO error handling
-      rethrow;
+      throw AquaticException.init(e.toString());
     }
   }
 

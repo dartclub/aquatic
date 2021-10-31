@@ -20,7 +20,7 @@ class MarkdownConverter extends AquaticConverter {
     if (convert) {
       entity.content = markdownToHtml(entity.content);
     } else {
-      // TODO throw
+      throw AquaticException.type('.md', entity.contentType);
     }
     return entity;
   }

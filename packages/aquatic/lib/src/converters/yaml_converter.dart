@@ -27,19 +27,15 @@ class YAMLConverter extends AquaticConverter {
         (!checkContentType || containsContentType(entity.contentType));
 
     if (jekyllStyleHeader) {
-      try {
-        var parts = entity.content.split('---\n');
-        entity.context!.addAll(loadYaml(parts[1]) as Map);
-        entity.content = parts[2];
-      } catch (e) {
-        // TODO  throw Exception('error parsing Jekyll-style file');
-      }
+      var parts = entity.content.split('---\n');
+      entity.context!.addAll(loadYaml(parts[1]) as Map);
+      entity.content = parts[2];
     } else {
       if (convert) {
         entity.content = loadYaml(entity.content) as Map;
         entity.context?.addAll(entity.content);
       } else {
-        // TODO throw
+        throw AquaticException.type('.yaml', entity.contentType);
       }
     }
     return entity;

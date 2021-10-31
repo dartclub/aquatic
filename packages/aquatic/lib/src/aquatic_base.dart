@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:aquatic/aquatic.dart';
+import 'package:aquatic/src/utils/logger.dart';
 import 'package:intl/locale.dart';
 import 'package:aquatic/src/utils/utils.dart';
 
@@ -10,6 +12,30 @@ enum AquaticErrorLevel {
 
   /// ignores and skips the exception-effected file and continues
   ignoreAndSkip,
+}
+
+class AquaticException {
+  final String message;
+
+  AquaticException(this.message);
+
+  factory AquaticException.type(expected, actual) => AquaticException(
+      'expected content type was $expected, but the actual type was $actual');
+
+  factory AquaticException.path(String path) =>
+      AquaticException('invalid file path: \'$path\'');
+
+  factory AquaticException.init(String message) =>
+      AquaticException('error initializing the pipline: $message');
+
+  factory AquaticException.either(
+          AquaticException either, AquaticException or) =>
+      AquaticException('skipped because of $either or $or');
+
+  @override
+  String toString() {
+    return message;
+  }
 }
 
 abstract class _AquaticContext {
@@ -41,11 +67,12 @@ abstract class _AquaticContext {
 
 abstract class AquaticSource extends _AquaticContext {
   final AquaticErrorLevel errorLevel;
+  final AquaticLogger logger = AquaticLogger();
+
   AquaticSource(
     String path, {
     required this.errorLevel,
     String? slug,
-    // TODO required this.errorLevel,
     Map? context,
     ContentType? contentType,
     Locale? contentLocale,
@@ -134,7 +161,21 @@ class AquaticPipeline {
   });
 
   AquaticPipeline step(AquaticConverter converter) {
-    stream = stream.asyncMap(converter.convert);
+    stream = stream.asyncMap(
+      (entity) {
+        try {
+          return converter.convert(entity);
+        } catch (e) {
+          if (source.errorLevel == AquaticErrorLevel.strict) {
+            source.logger.error(e.toString());
+            rethrow;
+          } else {
+            source.logger.warn(e.toString());
+            return entity;
+          }
+        }
+      },
+    );
     return this;
   }
 }

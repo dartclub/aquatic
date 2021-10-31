@@ -9,22 +9,13 @@ import 'package:aquatic/src/utils/logger.dart';
 Future<void> main(List<String> args) async {
   var logger = AquaticLogger();
 
-  var pipelines = <AquaticPipeline>[
-    AquaticDirectorySource('_files', watch: false)
-        .step(YAMLConverter(jekyllStyleHeader: true))
-        .step(MarkdownConverter()),
-    AquaticIterableSource([
-      AquaticEntity('# Hello World 1', path: 'first'),
-      AquaticEntity('*Hello World 2*', path: 'second'),
-      AquaticEntity('**Hello World 3**', path: 'third'),
-    ]).step(MarkdownConverter()).step(PrintConverter(logger)),
-  ];
+  AquaticDirectorySource('_files', watch: false)
+      .step(YAMLConverter(jekyllStyleHeader: true))
+      .step(MarkdownConverter());
 
-  for (var pipeline in pipelines) {
-    logger.log((await pipeline.stream.first).content);
-  }
-
-  Future.delayed(Duration(seconds: 4), () {
-    logger.printAll();
-  });
+  AquaticIterableSource([
+    AquaticEntity('# Hello World 1', path: 'first'),
+    AquaticEntity('*Hello World 2*', path: 'second'),
+    AquaticEntity('**Hello World 3**', path: 'third'),
+  ]).step(MarkdownConverter());
 }

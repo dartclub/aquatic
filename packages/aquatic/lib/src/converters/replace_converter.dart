@@ -15,7 +15,7 @@ class ReplaceConverter extends AquaticConverter {
       entity.content =
           entity.content.replace(from, replacement, replacementType);
     } else {
-      // TODO throw Exception('to replace, \'content\' must be of type String');
+      throw AquaticException.type(String, entity.content.runtimeType);
     }
 
     return entity;

@@ -23,7 +23,7 @@ class JSONConverter extends AquaticConverter {
       entity.content = jsonDecode(entity.content);
       if (entity.content is Map) entity.context?.addAll(entity.content);
     } else {
-      // TODO throw
+      throw AquaticException.type(String, entity.content.runtimeType);
     }
 
     return entity;

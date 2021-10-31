@@ -8,7 +8,7 @@ class FileOutput extends AquaticConverter {
   @override
   Future<AquaticEntity> convert(AquaticEntity entity) async {
     if (AquaticUtils.isUri(entity.path)) {
-      throw Exception('invalid file path: \'${entity.path}\'');
+      throw AquaticException.path(entity.path);
     }
 
     var parts = path.split(entity.path);
@@ -28,7 +28,8 @@ class FileOutput extends AquaticConverter {
     } else if (entity.content is Uint8List) {
       await file.writeAsBytes(entity.content);
     } else {
-      // TODO throw Exception('Can write file, because \'content\' is not of type String or Uint8List');
+      throw AquaticException.type(
+          'String or Uint8List', entity.content.runtimeType);
     }
     return entity;
   }

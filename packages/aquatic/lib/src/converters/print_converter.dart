@@ -4,7 +4,7 @@ import 'package:aquatic/src/utils/logger.dart';
 class PrintConverter extends AquaticConverter {
   final bool full;
   final AquaticLogger logger;
-
+// TODO find a solution
   PrintConverter(this.logger, {this.full = true});
   @override
   Future<AquaticEntity> convert(AquaticEntity entity) async {
