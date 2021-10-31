@@ -1,12 +1,12 @@
 import 'package:aquatic/aquatic.dart';
 import 'package:aquatic/src/utils/utils.dart';
 
-class ReplaceConvert extends AquaticConverter {
+class ReplaceConverter extends AquaticConverter {
   final Pattern from;
   final String replacement;
   final ReplacementType replacementType;
 
-  ReplaceConvert(this.from, this.replacement,
+  ReplaceConverter(this.from, this.replacement,
       {this.replacementType = ReplacementType.last});
 
   @override

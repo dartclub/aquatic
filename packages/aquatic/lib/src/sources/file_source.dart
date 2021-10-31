@@ -11,6 +11,7 @@ class AquaticFileSource extends AquaticSource {
 
   AquaticFileSource(
     String path, {
+    AquaticErrorLevel errorLevel = AquaticErrorLevel.ignoreAndSkip,
     this.watch = false,
     this.events = FileSystemEvent.all,
     String? slug,
@@ -19,6 +20,7 @@ class AquaticFileSource extends AquaticSource {
   })  : file = File(path),
         super(
           path,
+          errorLevel: errorLevel,
           slug: slug,
           context: context,
         );

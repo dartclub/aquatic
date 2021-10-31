@@ -2,12 +2,12 @@ import 'package:aquatic/aquatic.dart';
 import 'package:aquatic/src/converters/permalink.dart';
 import 'package:aquatic/src/utils/utils.dart';
 
-class PathReplaceConvert extends AquaticConverter {
+class PathReplaceConverter extends AquaticConverter {
   final Pattern from;
   final String replacement;
   final ReplacementType replacementType;
 
-  PathReplaceConvert(this.from, this.replacement,
+  PathReplaceConverter(this.from, this.replacement,
       {this.replacementType = ReplacementType.last});
 
   @override
@@ -19,11 +19,11 @@ class PathReplaceConvert extends AquaticConverter {
   }
 }
 
-class PathPermalinkConvert extends AquaticConverter {
+class PathPermalinkConverter extends AquaticConverter {
   String permalinkTemplate;
   final bool allowPermalinkVar;
 
-  PathPermalinkConvert(
+  PathPermalinkConverter(
     this.permalinkTemplate, /* fallback, if allowPermalinkVar is enabled */ {
     this.allowPermalinkVar = true,
   });

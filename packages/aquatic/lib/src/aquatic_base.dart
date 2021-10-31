@@ -4,13 +4,12 @@ import 'dart:io';
 import 'package:intl/locale.dart';
 import 'package:aquatic/src/utils/utils.dart';
 
-// TODO implement error handling
 enum AquaticErrorLevel {
   /// stops the execution of the whole pipeline
   strict,
 
-  /// ignores the exception-effected file and continues
-  ignore,
+  /// ignores and skips the exception-effected file and continues
+  ignoreAndSkip,
 }
 
 abstract class _AquaticContext {
@@ -41,9 +40,12 @@ abstract class _AquaticContext {
 }
 
 abstract class AquaticSource extends _AquaticContext {
+  final AquaticErrorLevel errorLevel;
   AquaticSource(
     String path, {
+    required this.errorLevel,
     String? slug,
+    // TODO required this.errorLevel,
     Map? context,
     ContentType? contentType,
     Locale? contentLocale,
@@ -123,17 +125,16 @@ class AquaticEntity extends _AquaticContext {
 }
 
 class AquaticPipeline {
-  final AquaticSource? source;
+  final AquaticSource source;
   Stream<AquaticEntity> stream;
 
   AquaticPipeline(
     this.stream, {
-    this.source,
+    required this.source,
   });
 
   AquaticPipeline step(AquaticConverter converter) {
-    stream =
-        stream.asyncMap((AquaticEntity entity) => converter.convert(entity));
+    stream = stream.asyncMap(converter.convert);
     return this;
   }
 }

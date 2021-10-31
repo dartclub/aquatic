@@ -8,10 +8,10 @@ class YAMLConverter extends AquaticConverter {
   final bool checkFileExtension;
   final bool checkContentType;
 
-  YAMLConverter(
-    this.checkContentType, {
+  YAMLConverter({
     this.jekyllStyleHeader = false,
     this.checkFileExtension = false,
+    this.checkContentType = false,
   }) : super(
           allowedFileExtensions: ['.yml', '.yaml'],
           allowedContentTypes: [
