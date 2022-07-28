@@ -1,6 +1,5 @@
 import 'package:http/http.dart' as http;
 import 'package:aquatic/aquatic.dart';
-import 'package:aquatic/src/sources/iterable_source.dart';
 
 enum HttpMethod { get }
 
