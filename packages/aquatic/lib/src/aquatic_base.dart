@@ -99,6 +99,35 @@ abstract class AquaticSource extends _AquaticContext {
   AquaticPipeline step(AquaticConverter converter) => pipeline.step(converter);
 }
 
+class AquaticPipeline {
+  final AquaticSource source;
+  Stream<AquaticEntity> stream;
+
+  AquaticPipeline(
+    this.stream, {
+    required this.source,
+  });
+
+  AquaticPipeline step(AquaticConverter converter) {
+    stream = stream.asyncMap(
+      (entity) {
+        try {
+          return converter.convert(entity);
+        } catch (e) {
+          if (source.errorLevel == AquaticErrorLevel.strict) {
+            source.logger.error(e.toString());
+            rethrow;
+          } else {
+            source.logger.warn(e.toString());
+            return entity;
+          }
+        }
+      },
+    );
+    return this;
+  }
+}
+
 enum AquaticOperation {
   create,
   update,
@@ -149,35 +178,6 @@ class AquaticEntity extends _AquaticContext {
         "content": content,
         "site": inheritedContext,
       };
-}
-
-class AquaticPipeline {
-  final AquaticSource source;
-  Stream<AquaticEntity> stream;
-
-  AquaticPipeline(
-    this.stream, {
-    required this.source,
-  });
-
-  AquaticPipeline step(AquaticConverter converter) {
-    stream = stream.asyncMap(
-      (entity) {
-        try {
-          return converter.convert(entity);
-        } catch (e) {
-          if (source.errorLevel == AquaticErrorLevel.strict) {
-            source.logger.error(e.toString());
-            rethrow;
-          } else {
-            source.logger.warn(e.toString());
-            return entity;
-          }
-        }
-      },
-    );
-    return this;
-  }
 }
 
 abstract class AquaticConverter {
