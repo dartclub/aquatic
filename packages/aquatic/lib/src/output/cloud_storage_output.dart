@@ -6,7 +6,7 @@ import 'package:googleapis_auth/auth_io.dart' as auth;
 import 'package:http/http.dart' as http;
 import 'package:gcloud/storage.dart';
 
-class CloudStorageConverter extends AquaticConverter {
+class CloudStorageOutput extends AquaticConverter {
   final String projectId;
   final String bucketName;
   String? credentialPath;
@@ -14,8 +14,8 @@ class CloudStorageConverter extends AquaticConverter {
   late Storage storage;
   late Bucket bucket;
 
-  CloudStorageConverter(this.projectId, this.bucketName, this.credentialPath);
-  CloudStorageConverter.inject(this.projectId, this.bucketName, this.client);
+  CloudStorageOutput(this.projectId, this.bucketName, this.credentialPath);
+  CloudStorageOutput.inject(this.projectId, this.bucketName, this.client);
 
   Future<auth.AutoRefreshingAuthClient> _authenticate() async {
     var jsonCredentials =

@@ -130,6 +130,7 @@ class AquaticPipeline {
 
 enum AquaticOperation {
   create,
+  write,
   update,
   delete,
 }

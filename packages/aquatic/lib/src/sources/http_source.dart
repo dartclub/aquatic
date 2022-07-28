@@ -10,7 +10,7 @@ class HttpSource extends AquaticSource {
 
   HttpSource(
     String url, {
-    required AquaticErrorLevel errorLevel,
+    AquaticErrorLevel errorLevel = AquaticErrorLevel.ignoreAndSkip,
     this.refreshInterval,
     HttpMethod method = HttpMethod.get,
     this.headers,
