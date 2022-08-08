@@ -10,7 +10,7 @@ class AmqpSource extends AquaticSource {
   final StreamController _controller = StreamController<AquaticEntity>();
   final Client _client;
   late Channel _channel;
-  late Queue _queue;
+  late Exchange _exchange;
   late Consumer _consumer;
   late StreamSubscription<AmqpMessage> _subscription;
 
@@ -28,8 +28,20 @@ class AmqpSource extends AquaticSource {
 
   Future<void> _initStream() async {
     _channel = await _client.channel();
-    _queue = await _channel.queue(queueTag, durable: false);
-    _consumer = await _queue.consume(consumerTag: queueTag, noAck: true);
+    try {
+      var queue = await _channel.queue(queueTag, durable: false);
+      _consumer = await queue.consume(consumerTag: queueTag, noAck: true);
+    } on QueueNotFoundException {
+      _exchange = await _channel.exchange(queueTag, ExchangeType.FANOUT);
+      _consumer = await _exchange.bindQueueConsumer(
+        queueTag,
+        [],
+        consumerTag: queueTag,
+        noAck: true,
+      );
+    } catch (e) {
+      rethrow;
+    }
 
     _subscription = _consumer.listen((AmqpMessage event) {
       // TODO handle acknowledgement/rejection
@@ -47,5 +59,9 @@ class AmqpSource extends AquaticSource {
         source: this,
       );
 
-  void cancel() => _subscription.cancel();
+  @override
+  Future<void> onClose() async {
+    await _client.close();
+    return super.onClose();
+  }
 }

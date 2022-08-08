@@ -97,6 +97,10 @@ abstract class AquaticSource extends _AquaticContext {
       };
   AquaticPipeline get pipeline;
   AquaticPipeline step(AquaticConverter converter) => pipeline.step(converter);
+
+  Future<void> onClose() async {
+    return;
+  }
 }
 
 class AquaticPipeline {
@@ -209,6 +213,7 @@ abstract class _AquaticAction {
     return false;
   }
 
+  Future<void> onClose();
   Future<Iterable<AquaticEntity>> executeInternally(AquaticEntity entity);
 }
 
@@ -221,6 +226,11 @@ abstract class AquaticConverter extends _AquaticAction {
   Future<Iterable<AquaticEntity>> executeInternally(
           AquaticEntity entity) async =>
       [await convert(entity)];
+
+  @override
+  Future<void> onClose() async {
+    return;
+  }
 }
 
 typedef Future<AquaticEntity> ConvertFunction(AquaticEntity entity);
