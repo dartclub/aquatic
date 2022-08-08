@@ -108,18 +108,19 @@ class AquaticPipeline {
     required this.source,
   });
 
-  AquaticPipeline step(AquaticConverter converter) {
-    stream = stream.asyncMap(
-      (entity) {
+  AquaticPipeline step(_AquaticAction converter) {
+    stream = stream.asyncExpand(
+      (entity) async* {
         try {
-          return converter.convert(entity);
+          var entities = await converter.executeInternally(entity);
+          yield* Stream.fromIterable(entities);
         } catch (e) {
           if (source.errorLevel == AquaticErrorLevel.strict) {
             source.logger.error(e.toString());
             rethrow;
           } else {
             source.logger.warn(e.toString());
-            return entity;
+            yield entity;
           }
         }
       },
@@ -181,9 +182,15 @@ class AquaticEntity extends _AquaticContext {
       };
 }
 
-abstract class AquaticConverter {
+abstract class _AquaticAction {
   final List<String> allowedFileExtensions;
   final List<ContentType> allowedContentTypes;
+
+  _AquaticAction({
+    this.allowedFileExtensions = const [],
+    this.allowedContentTypes = const [],
+  });
+
   bool containsFileExtension(String path) {
     for (var ext in allowedFileExtensions) {
       if (path.endsWith(ext)) {
@@ -202,12 +209,18 @@ abstract class AquaticConverter {
     return false;
   }
 
-  AquaticConverter({
-    List<String>? allowedFileExtensions,
-    List<ContentType>? allowedContentTypes,
-  })  : allowedFileExtensions = allowedFileExtensions ?? [],
-        allowedContentTypes = allowedContentTypes ?? [];
+  Future<Iterable<AquaticEntity>> executeInternally(AquaticEntity entity);
+}
+
+abstract class AquaticConverter extends _AquaticAction {
+  AquaticConverter({super.allowedFileExtensions, super.allowedContentTypes});
+
   Future<AquaticEntity> convert(AquaticEntity entity);
+
+  @override
+  Future<Iterable<AquaticEntity>> executeInternally(
+          AquaticEntity entity) async =>
+      [await convert(entity)];
 }
 
 typedef Future<AquaticEntity> ConvertFunction(AquaticEntity entity);
@@ -232,8 +245,8 @@ class AquaticSimpleConverter extends AquaticConverter {
     List<ContentType>? allowedContentTypes,
   })  : skipFunction = skipFunction ?? _skipFunctionDefault,
         super(
-          allowedFileExtensions: allowedFileExtensions,
-          allowedContentTypes: allowedContentTypes,
+          allowedFileExtensions: allowedFileExtensions ?? [],
+          allowedContentTypes: allowedContentTypes ?? [],
         );
 
   @override
@@ -246,4 +259,14 @@ class AquaticSimpleConverter extends AquaticConverter {
     }
     return convertFunction(entity);
   }
+}
+
+abstract class AquaticExpander extends _AquaticAction {
+  AquaticExpander({super.allowedFileExtensions, super.allowedContentTypes});
+
+  Future<Iterable<AquaticEntity>> expand(AquaticEntity entity);
+
+  @override
+  Future<Iterable<AquaticEntity>> executeInternally(AquaticEntity entity) =>
+      expand(entity);
 }
