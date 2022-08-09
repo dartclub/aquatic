@@ -279,4 +279,46 @@ abstract class AquaticExpander extends _AquaticAction {
   @override
   Future<Iterable<AquaticEntity>> executeInternally(AquaticEntity entity) =>
       expand(entity);
+
+  @override
+  Future<void> onClose() async {
+    return;
+  }
+}
+
+typedef Future<List<AquaticEntity>> ExpandFunction(AquaticEntity entity);
+typedef Future<List<AquaticEntity>> ExpandSkipFunction(AquaticEntity entity);
+
+class AquaticSimpleExpander extends AquaticExpander {
+  final ExpandFunction expandFunction;
+  final ExpandSkipFunction skipFunction;
+  final bool checkFileExtension;
+  final bool checkContentType;
+
+  static final _skipFunctionDefault =
+      (AquaticEntity entity) async => <AquaticEntity>[entity];
+
+  AquaticSimpleExpander(
+    this.expandFunction, {
+    ExpandSkipFunction? skipFunction,
+    this.checkFileExtension = false,
+    List<String>? allowedFileExtensions,
+    this.checkContentType = false,
+    List<ContentType>? allowedContentTypes,
+  })  : skipFunction = skipFunction ?? _skipFunctionDefault,
+        super(
+          allowedFileExtensions: allowedFileExtensions ?? [],
+          allowedContentTypes: allowedContentTypes ?? [],
+        );
+
+  @override
+  Future<Iterable<AquaticEntity>> expand(AquaticEntity entity) {
+    if (checkFileExtension && !containsFileExtension(entity.path)) {
+      return skipFunction(entity);
+    }
+    if (checkContentType && !containsContentType(entity.contentType)) {
+      return skipFunction(entity);
+    }
+    return expandFunction(entity);
+  }
 }
